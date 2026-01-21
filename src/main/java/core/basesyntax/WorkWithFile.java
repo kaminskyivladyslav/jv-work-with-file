@@ -1,52 +1,72 @@
 package core.basesyntax;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class WorkWithFile {
-    public void getStatistic(String fromFileName, String toFileName) {
-        StringBuilder builder = getBuilder(fromFileName);
-        int supply = 0;
-        int buy = 0;
-        String[] info = builder.toString().split("[,\r\n]+");
-        if ((info.length % 2) == 0) {
-        for (int i = 0; i < info.length; i += 2) {
-            if (info[i].equals("supply")) {
-                supply += Integer.parseInt(info[i + 1]);
-        }   else if (info[i].equals("buy")) {
-                buy += Integer.parseInt(info[i + 1]);
-            }
-        }
-        }
-        int result = supply - buy;
-        StringBuilder reportBuilder = new StringBuilder();
-        reportBuilder.append("supply,")
-                .append(supply)
-                .append(System.lineSeparator())
-                .append("buy,")
-                .append(buy)
-                .append(System.lineSeparator())
-                .append("result,")
-                .append(result)
-                .append(System.lineSeparator());
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(toFileName))) {
-            writer.write(reportBuilder.toString());
-        } catch (IOException e) {
-            throw new RuntimeException("Can't write a file", e);
-        }
+    public static final int START_POSITION = 0;
+    public static final int INFO_ABOUT_POSITION = 1;
+    public static final int NEXT_POSITION = 2;
+    public static final String SUPPLY = "supply";
+    public static final String BUY = "buy";
+    public static final String RESULT = "result";
 
+    public void getStatistic(String fromFileName, String toFileName) {;
+        writeToFile(result(readFile(fromFileName)), toFileName);
     }
 
-    private static StringBuilder getBuilder(String fromFileName) {
+    private static String readFile(String fromFileName) {
         StringBuilder builder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(fromFileName))) {
-            int value = reader.read();
-            while (value != -1) {
-                builder.append((char) value);
-                value = reader.read();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fromFileName))){
+            String value = reader.readLine();
+            while (value != null) {
+                builder.append(value)
+                        .append(System.lineSeparator());
+                value = reader.readLine();
             }
         } catch (IOException e) {
             throw new RuntimeException("Can't read a file", e);
         }
-        return builder;
+        return builder.toString();
+    }
+
+    private static String result(String readFile) {
+        int supply = START_POSITION;
+        int buy = START_POSITION;
+        String[] info = readFile.split("\\W+");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = START_POSITION; i < info.length; i += NEXT_POSITION) {
+            if (info[i].equals(SUPPLY)) {
+                supply += Integer.parseInt(info[i + INFO_ABOUT_POSITION]);
+            }
+            if (info[i].equals(BUY)) {
+                buy += Integer.parseInt(info[i + INFO_ABOUT_POSITION]);
+            }
+        }
+        int result = supply - buy;
+        stringBuilder.append(SUPPLY)
+                .append(",")
+                .append(supply)
+                .append(System.lineSeparator())
+                .append(BUY)
+                .append(",")
+                .append(buy)
+                .append(System.lineSeparator())
+                .append(RESULT)
+                .append(",")
+                .append(result)
+                .append(System.lineSeparator());
+        return stringBuilder.toString();
+    }
+
+    private static void writeToFile (String result, String toFile) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(toFile))) {
+            writer.write(result);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
