@@ -14,13 +14,13 @@ public class WorkWithFile {
     public static final String BUY = "buy";
     public static final String RESULT = "result";
 
-    public void getStatistic(String fromFileName, String toFileName) {;
+    public void getStatistic(String fromFileName, String toFileName) {
         writeToFile(result(readFile(fromFileName)), toFileName);
     }
 
     private static String readFile(String fromFileName) {
         StringBuilder builder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(fromFileName))){
+        try (BufferedReader reader = new BufferedReader(new FileReader(fromFileName))) {
             String value = reader.readLine();
             while (value != null) {
                 builder.append(value)
@@ -62,7 +62,7 @@ public class WorkWithFile {
         return stringBuilder.toString();
     }
 
-    private static void writeToFile (String result, String toFile) {
+    private static void writeToFile(String result, String toFile) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(toFile))) {
             writer.write(result);
         } catch (IOException e) {
