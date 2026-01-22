@@ -18,7 +18,13 @@ public class WorkWithFile {
     private static final String RESULT = "result";
     private static final String DATA_DELIMITER_REGEX = "\\W+";
 
-    private static String readFile(String fromFileName) {
+    public void getStatistic(String fromFileName, String toFileName) {
+
+        writeToFile(append(statistic(fileContent(fromFileName))), toFileName);
+    }
+
+    private static String fileContent(String fromFileName) {
+
         StringBuilder builder = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(fromFileName))) {
             String value = reader.readLine();
@@ -28,12 +34,13 @@ public class WorkWithFile {
                 value = reader.readLine();
             }
         } catch (IOException e) {
-            throw new RuntimeException("Can't read a file", e);
+            throw new RuntimeException("Can't read a file " + fromFileName, e);
         }
         return builder.toString();
     }
 
-    private static String[] calculate(String readFile) {
+    private static String[] statistic(String readFile) {
+
         int supply = START_POSITION;
         int buy = START_POSITION;
         String[] info = readFile.split(DATA_DELIMITER_REGEX);
@@ -53,6 +60,7 @@ public class WorkWithFile {
     }
 
     private static String append(String[] calculate) {
+
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(SUPPLY)
                 .append(",")
@@ -69,15 +77,13 @@ public class WorkWithFile {
         return stringBuilder.toString();
     }
 
-    private static void writeToFile(String append, String toFile) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(toFile))) {
+    private static void writeToFile(String append, String toFileName) {
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(toFileName))) {
             writer.write(append);
         } catch (IOException e) {
-            throw new RuntimeException("Can't write data to file" + toFile, e);
+            throw new RuntimeException("Can't write data to file " + toFileName, e);
         }
     }
 
-    public void getStatistic(String fromFileName, String toFileName) {
-        writeToFile(append(calculate(readFile(fromFileName))), toFileName);
-    }
 }
