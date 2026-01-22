@@ -7,16 +7,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class WorkWithFile {
-    public static final int START_POSITION = 0;
-    public static final int INFO_ABOUT_POSITION = 1;
-    public static final int NEXT_POSITION = 2;
-    public static final String SUPPLY = "supply";
-    public static final String BUY = "buy";
-    public static final String RESULT = "result";
-
-    public void getStatistic(String fromFileName, String toFileName) {
-        writeToFile(result(readFile(fromFileName)), toFileName);
-    }
+    private static final int START_POSITION = 0;
+    private static final int INFO_ABOUT_POSITION = 1;
+    private static final int NEXT_POSITION = 2;
+    private static final int SUPPLY_COUNT = 0;
+    private static final int BUY_COUNT = 1;
+    private static final int RESULT_COUNT = 2;
+    private static final String SUPPLY = "supply";
+    private static final String BUY = "buy";
+    private static final String RESULT = "result";
+    private static final String DATA_DELIMITER_REGEX = "\\W+";
 
     private static String readFile(String fromFileName) {
         StringBuilder builder = new StringBuilder();
@@ -33,11 +33,10 @@ public class WorkWithFile {
         return builder.toString();
     }
 
-    private static String result(String readFile) {
+    private static String[] calculate(String readFile) {
         int supply = START_POSITION;
         int buy = START_POSITION;
-        String[] info = readFile.split("\\W+");
-        StringBuilder stringBuilder = new StringBuilder();
+        String[] info = readFile.split(DATA_DELIMITER_REGEX);
         for (int i = START_POSITION; i < info.length; i += NEXT_POSITION) {
             if (info[i].equals(SUPPLY)) {
                 supply += Integer.parseInt(info[i + INFO_ABOUT_POSITION]);
@@ -47,26 +46,38 @@ public class WorkWithFile {
             }
         }
         int result = supply - buy;
+        return new String[]{
+                Integer.toString(supply),
+                Integer.toString(buy),
+                Integer.toString(result)};
+    }
+
+    private static String append(String[] calculate) {
+        StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(SUPPLY)
                 .append(",")
-                .append(supply)
+                .append(calculate[SUPPLY_COUNT])
                 .append(System.lineSeparator())
                 .append(BUY)
                 .append(",")
-                .append(buy)
+                .append(calculate[BUY_COUNT])
                 .append(System.lineSeparator())
                 .append(RESULT)
                 .append(",")
-                .append(result)
+                .append(calculate[RESULT_COUNT])
                 .append(System.lineSeparator());
         return stringBuilder.toString();
     }
 
-    private static void writeToFile(String result, String toFile) {
+    private static void writeToFile(String append, String toFile) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(toFile))) {
-            writer.write(result);
+            writer.write(append);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't write data to file" + toFile, e);
         }
+    }
+
+    public void getStatistic(String fromFileName, String toFileName) {
+        writeToFile(append(calculate(readFile(fromFileName))), toFileName);
     }
 }
